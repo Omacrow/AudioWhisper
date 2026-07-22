@@ -1,0 +1,99 @@
+:root {
+    --bg: #0e0e10;
+    --bg-alt: #17171a;
+    --fg: #e8e8ea;
+    --muted: #9a9aa2;
+    --border: #2a2a2e;
+    --accent: #6c8cff;
+    --ok: #3ecf8e;
+    --err: #f0506e;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.5;
+}
+
+.site-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.brand {
+    color: var(--fg);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+h1 { font-size: 1.4rem; }
+
+.upload-form p { margin: 0 0 1rem; }
+.upload-form label { display: block; margin-bottom: 0.25rem; color: var(--muted); font-size: 0.9rem; }
+.upload-form input, .upload-form select {
+    width: 100%;
+    padding: 0.5rem;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--fg);
+}
+
+button {
+    padding: 0.6rem 1.2rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+button:hover { opacity: 0.9; }
+
+.status {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+.status-pending { background: rgba(154,154,162,0.15); color: var(--muted); }
+.status-processing { background: rgba(108,140,255,0.15); color: var(--accent); }
+.status-done { background: rgba(62,207,142,0.15); color: var(--ok); }
+.status-failed { background: rgba(240,80,110,0.15); color: var(--err); }
+
+#processing-state p, #pending-state p { color: var(--muted); }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+th, td {
+    text-align: left;
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+}
+th { color: var(--muted); font-weight: 600; }
+tr.segment-broken td { color: var(--err); font-style: italic; }
+
+#full-text {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    white-space: pre-wrap;
+}

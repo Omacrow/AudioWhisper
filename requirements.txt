@@ -1,0 +1,7 @@
+openai-whisper
+pydub
+django
+djangorestframework
+celery
+redis
+psycopg2-binary

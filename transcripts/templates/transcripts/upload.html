@@ -1,0 +1,12 @@
+{% extends "transcripts/base.html" %}
+
+{% block title %}Upload audio &mdash; AudioWhisper{% endblock %}
+
+{% block content %}
+    <h1>Transcribe an audio file</h1>
+    <form method="post" enctype="multipart/form-data" class="upload-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload &amp; transcribe</button>
+    </form>
+{% endblock %}

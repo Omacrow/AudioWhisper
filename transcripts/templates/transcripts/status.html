@@ -1,0 +1,98 @@
+{% extends "transcripts/base.html" %}
+
+{% block title %}Transcript &mdash; AudioWhisper{% endblock %}
+
+{% block content %}
+    <h1>{{ upload.original_filename }}</h1>
+    <p>
+        Status:
+        <span id="status-badge" class="status status-{{ upload.status }}">{{ upload.get_status_display }}</span>
+    </p>
+
+    <div id="pending-state" {% if upload.status != "pending" %}hidden{% endif %}>
+        <p>Waiting for a worker to pick this up&hellip;</p>
+    </div>
+
+    <div id="processing-state" {% if upload.status != "processing" %}hidden{% endif %}>
+        <p>Transcribing&hellip; this page updates automatically.</p>
+    </div>
+
+    <div id="failed-state" {% if upload.status != "failed" %}hidden{% endif %}>
+        <p><strong>Failed</strong> at stage <span id="error-stage">{{ upload.error_stage }}</span>:
+            <span id="error-message">{{ upload.error_message }}</span></p>
+    </div>
+
+    <div id="done-state" {% if upload.status != "done" %}hidden{% endif %}>
+        <h2>Transcript</h2>
+        <p id="full-text">{% if upload.status == "done" %}{{ upload.transcript.full_text }}{% endif %}</p>
+        <h3>Segments</h3>
+        <table id="segments-table">
+            <thead><tr><th>Start</th><th>End</th><th>Confidence</th><th>Text</th></tr></thead>
+            <tbody id="segments-body">
+            {% if upload.status == "done" %}
+                {% for seg in upload.transcript.segments %}
+                    <tr class="{% if seg.broken %}segment-broken{% endif %}">
+                        <td>{{ seg.start }}s</td>
+                        <td>{{ seg.end }}s</td>
+                        <td>{{ seg.confidence }}</td>
+                        <td>{{ seg.text }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const statusUrl = "{% url 'transcript-status' pk=upload.pk %}";
+        const POLL_INTERVAL_MS = 2000;
+
+        function showState(status) {
+            for (const s of ["pending", "processing", "failed", "done"]) {
+                document.getElementById(s + "-state").hidden = (s !== status);
+            }
+        }
+
+        function render(data) {
+            const badge = document.getElementById("status-badge");
+            badge.textContent = data.status;
+            badge.className = "status status-" + data.status;
+            showState(data.status);
+
+            if (data.status === "failed") {
+                document.getElementById("error-stage").textContent = data.error_stage;
+                document.getElementById("error-message").textContent = data.error_message;
+            }
+
+            if (data.status === "done" && data.transcript) {
+                document.getElementById("full-text").textContent = data.transcript.full_text;
+                const body = document.getElementById("segments-body");
+                body.innerHTML = "";
+                for (const seg of data.transcript.segments) {
+                    const row = document.createElement("tr");
+                    if (seg.broken) row.classList.add("segment-broken");
+                    for (const text of [seg.start + "s", seg.end + "s", seg.confidence, seg.text]) {
+                        const td = document.createElement("td");
+                        td.textContent = text;
+                        row.appendChild(td);
+                    }
+                    body.appendChild(row);
+                }
+            }
+        }
+
+        async function poll() {
+            const res = await fetch(statusUrl, {headers: {"Accept": "application/json"}});
+            const data = await res.json();
+            render(data);
+            if (data.status === "pending" || data.status === "processing") {
+                setTimeout(poll, POLL_INTERVAL_MS);
+            }
+        }
+
+        const initialStatus = "{{ upload.status }}";
+        if (initialStatus === "pending" || initialStatus === "processing") {
+            setTimeout(poll, POLL_INTERVAL_MS);
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}AudioWhisper{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'transcripts/style.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <a href="{% url 'upload-page' %}" class="brand">AudioWhisper</a>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
