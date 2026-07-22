@@ -4,7 +4,7 @@ from celery import shared_task
 from django.utils import timezone
 
 from .models import AudioUpload, Transcript
-from .transcription_core import TranscriptionError, process_audio_file
+from .transcription_core import PreprocessError, TranscriptionError, process_audio_file
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,8 @@ def transcribe_audio_task(self, audio_upload_id: str):
 
     try:
         result = process_audio_file(upload.file.path, model_size=upload.model_size)
+    except PreprocessError as e:
+        return _handle_failure(self, upload, stage="preprocess", message=str(e))
     except TranscriptionError as e:
         return _handle_failure(self, upload, stage="transcribe", message=str(e))
     except Exception as e:

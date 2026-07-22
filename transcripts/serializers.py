@@ -1,6 +1,9 @@
+import os
+
 from rest_framework import serializers
 
 from .models import AudioUpload, Transcript
+from .transcription_core import SUPPORTED_EXTENSIONS
 
 
 class AudioUploadCreateSerializer(serializers.ModelSerializer):
@@ -10,6 +13,15 @@ class AudioUploadCreateSerializer(serializers.ModelSerializer):
         model = AudioUpload
         fields = ["id", "file", "model_size", "status", "created_at"]
         read_only_fields = ["id", "status", "created_at"]
+
+    def validate_file(self, value):
+        ext = os.path.splitext(value.name)[1].lower()
+        if ext not in SUPPORTED_EXTENSIONS:
+            raise serializers.ValidationError(
+                f"Unsupported file extension '{ext}'. Expected one of: "
+                f"{', '.join(sorted(SUPPORTED_EXTENSIONS))}"
+            )
+        return value
 
     def create(self, validated_data):
         validated_data["original_filename"] = validated_data["file"].name
